@@ -14,7 +14,7 @@ databaseChangeLog:
                     primaryKey: true
               - column:
                   name: number
-                  type: VARCHAR(16)
+                  type: VARCHAR(64)
                   constraints:
                     nullable: false
               - column:
@@ -41,4 +41,4 @@ databaseChangeLog:
                   name: status
                   type: varchar(50)
                   constraints:
-                  nullable: false
+                    nullable: false

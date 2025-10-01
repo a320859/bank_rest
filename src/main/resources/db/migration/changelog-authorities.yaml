@@ -4,7 +4,7 @@ databaseChangeLog:
       author: nikita
       changes:
         - createTable:
-            tableName: users
+            tableName: authorities
             columns:
               - column:
                   name: id
@@ -18,15 +18,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: password
-                  type: VARCHAR(64)
+                  name: authority
+                  type: VARCHAR(16)
                   constraints:
                     nullable: false
-              - column:
-                  name: role
-                  type: VARCHAR(20)
-                  constraints:
-                    nullable: false
-              - column:
-                  name: enabled
-                  type: int

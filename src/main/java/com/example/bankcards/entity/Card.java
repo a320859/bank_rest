@@ -1,9 +1,12 @@
 package com.example.bankcards.entity;
 
+import com.example.bankcards.util.CardEncryptor;
 import com.example.bankcards.util.CardStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "cards")
@@ -14,14 +17,20 @@ public class Card {
     private String number;
 
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "owner_id")
     private User owner;
 
     private double balance;
-    private Date validityPeriod;
+    private LocalDate validityPeriod;
 
     @Enumerated(EnumType.STRING)
     private CardStatus status;
+
+    @JsonProperty("number")
+    public String getMaskedNumber() throws Exception {
+        String decrypted = CardEncryptor.decrypt(number);
+        return "**** **** **** " + decrypted.substring(decrypted.length() - 4);
+    }
 
     public void setId(int id) {
         this.id = id;
@@ -31,6 +40,7 @@ public class Card {
         return id;
     }
 
+    @JsonIgnore
     public String getNumber() {
         return number;
     }
@@ -55,11 +65,11 @@ public class Card {
         this.balance = balance;
     }
 
-    public Date getValidityPeriod() {
+    public LocalDate getValidityPeriod() {
         return validityPeriod;
     }
 
-    public void setValidityPeriod(Date validityPeriod) {
+    public void setValidityPeriod(LocalDate validityPeriod) {
         this.validityPeriod = validityPeriod;
     }
 
