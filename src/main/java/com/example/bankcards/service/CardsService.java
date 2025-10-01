@@ -2,14 +2,19 @@ package com.example.bankcards.service;
 
 import com.example.bankcards.dto.CardDTO;
 import com.example.bankcards.dto.TransferDTO;
+
+import com.example.bankcards.entity.Card;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.UserRepository;
 import com.example.bankcards.util.CardEncryptor;
 import com.example.bankcards.util.CardStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 
@@ -24,11 +29,11 @@ public class CardsService {
         this.userRepository = userRepository;
     }
 
-    public ResponseEntity<?> getCards(UserDetails userDetails) {
+    public Page<Card> getCards(UserDetails userDetails, int page, int size) {
         int userId = userRepository.findIdByUsername(userDetails.getUsername());
-
-        return ResponseEntity.ok().body(cardRepository.getCards(userId));
+        return cardRepository.getCards(userId, PageRequest.of(page, size));
     }
+
 
     public ResponseEntity<?> saveCard(CardDTO cardDTO, UserDetails userDetails) {
         String number = cardDTO.getNumber();

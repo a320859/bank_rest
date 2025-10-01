@@ -2,6 +2,8 @@ package com.example.bankcards.repository;
 
 import com.example.bankcards.entity.Card;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -24,8 +26,13 @@ public interface CardRepository extends JpaRepository<Card, Integer> {
     @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM cards WHERE number = :number")
     int countOfCardsWithNumber(@Param("number") String number);
 
-    @Query(nativeQuery = true, value = "SELECT * FROM cards WHERE owner_id = :userId")
-    List<Card> getCards(@Param("userId") int userId);
+    @Query(
+            value = "SELECT * FROM cards WHERE owner_id = :userId",
+            countQuery = "SELECT COUNT(*) FROM cards WHERE owner_id = :userId",
+            nativeQuery = true
+    )
+    Page<Card> getCards(@Param("userId") int userId, Pageable pageable);
+
 
 
     @Query(nativeQuery = true, value = "SELECT balance FROM cards WHERE number = :number")
