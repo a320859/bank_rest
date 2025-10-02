@@ -1,6 +1,7 @@
 package com.example.bankcards.repository;
 
 import com.example.bankcards.entity.Card;
+import com.example.bankcards.util.CardStatus;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,6 +35,8 @@ public interface CardRepository extends JpaRepository<Card, Integer> {
     Page<Card> getCards(@Param("userId") int userId, Pageable pageable);
 
 
+    @Query(nativeQuery = true, value = "SELECT status FROM cards WHERE number = :number")
+    String findStatusByNumber(@Param("number") String number);
 
     @Query(nativeQuery = true, value = "SELECT balance FROM cards WHERE number = :number")
     int getBalance(@Param("number") String number);
@@ -42,4 +45,19 @@ public interface CardRepository extends JpaRepository<Card, Integer> {
     @Transactional
     @Query(nativeQuery = true, value = "UPDATE cards SET balance = :newBalance WHERE number = :number")
     void editBalance(@Param("newBalance") int newBalance, @Param("number") String number);
+
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true, value = "UPDATE cards SET status = :newStatus WHERE id = :id")
+    void changeStatus(@Param("newStatus") CardStatus newStatus, @Param("id") int id);
+
+
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true, value = "DELETE FROM cards WHERE id = :id")
+    void deleteCardById(@Param("id") int id);
+
+
+    @Query(nativeQuery = true, value = "SELECT * FROM cards WHERE block_requested = 1")
+    List<Card> getCardBlockRequests();
 }
