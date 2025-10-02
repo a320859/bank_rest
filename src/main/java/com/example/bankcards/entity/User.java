@@ -1,7 +1,10 @@
 package com.example.bankcards.entity;
 
 import com.example.bankcards.util.RoleUser;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -15,6 +18,10 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private RoleUser role;
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Card> cards;
 
     public String getUsername() {
         return username;
@@ -54,5 +61,13 @@ public class User {
 
     public void setEnabled(int enabled) {
         this.enabled = enabled;
+    }
+
+    public List<Card> getCards() {
+        return cards;
+    }
+
+    public void setCards(List<Card> cards) {
+        this.cards = cards;
     }
 }
