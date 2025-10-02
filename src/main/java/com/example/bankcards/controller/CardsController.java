@@ -1,6 +1,8 @@
 package com.example.bankcards.controller;
 
+import com.example.bankcards.dto.BlockCardRequestDTO;
 import com.example.bankcards.dto.CardDTO;
+import com.example.bankcards.dto.ChangeStatusDTO;
 import com.example.bankcards.dto.TransferDTO;
 import com.example.bankcards.entity.Card;
 import com.example.bankcards.service.CardsService;
@@ -32,4 +34,16 @@ public class CardsController {
     public ResponseEntity<?> transfer(@RequestBody TransferDTO transferDTO, @AuthenticationPrincipal UserDetails userDetails) {
         return cardsService.transfer(transferDTO, userDetails);
     }
+
+    @PostMapping("/cards/{id}/changeStatus")
+    public ResponseEntity<?> changeStatus(@PathVariable int id, @RequestBody ChangeStatusDTO changeStatusDTO, @AuthenticationPrincipal UserDetails userDetails) {
+        return cardsService.changeStatus(id, changeStatusDTO, userDetails);
+    }
+
+    @PostMapping("/cards/block-request")
+    public ResponseEntity<?> requestBlock(@RequestBody BlockCardRequestDTO dto,
+                                          @AuthenticationPrincipal UserDetails userDetails) {
+        return cardsService.requestBlock(dto, userDetails);
+    }
+
 }
