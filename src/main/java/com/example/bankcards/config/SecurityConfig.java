@@ -38,7 +38,7 @@ public class SecurityConfig {
     UserDetailsService userDetailsService (DataSource dataSource) {
         var userDetailsManager = new JdbcUserDetailsManager(dataSource);
         userDetailsManager.setUsersByUsernameQuery("SELECT username, password, enabled FROM users WHERE username = ?");
-        userDetailsManager.setAuthoritiesByUsernameQuery("SELECT username, authority FROM authorities WHERE username = ?");
+        userDetailsManager.setAuthoritiesByUsernameQuery("SELECT username, role as authority FROM users WHERE username = ?");
         return userDetailsManager;
     }
 

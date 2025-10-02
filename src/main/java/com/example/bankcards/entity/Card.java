@@ -3,8 +3,12 @@ package com.example.bankcards.entity;
 import com.example.bankcards.util.CardEncryptor;
 import com.example.bankcards.util.CardStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 
 import java.time.LocalDate;
 
@@ -18,6 +22,7 @@ public class Card {
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
+    @JsonIgnoreProperties("cards")
     private User owner;
 
     private double balance;
@@ -25,6 +30,10 @@ public class Card {
 
     @Enumerated(EnumType.STRING)
     private CardStatus status;
+
+    @Column(name = "block_requested", nullable = false)
+    @JdbcTypeCode(SqlTypes.TINYINT)
+    private boolean blockRequested;
 
     @JsonProperty("number")
     public String getMaskedNumber() throws Exception {
@@ -79,5 +88,13 @@ public class Card {
 
     public CardStatus getStatus() {
         return status;
+    }
+
+    public boolean isBlockRequested() {
+        return blockRequested;
+    }
+
+    public void setBlockRequested(boolean blockRequested) {
+        this.blockRequested = blockRequested;
     }
 }
