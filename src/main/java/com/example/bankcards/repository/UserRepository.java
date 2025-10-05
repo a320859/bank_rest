@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface UserRepository extends JpaRepository<User, Integer> {
     @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM users WHERE username = :username")
     int countOfUsersWithUsername(@Param("username") String username);
@@ -23,7 +25,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     void addUserAuthority(@Param("username") String username);
 
     @Query(nativeQuery = true, value = "SELECT id FROM users WHERE username = :username")
-    int findIdByUsername(@Param("username") String username);
+    Optional<Integer> findIdByUsername(@Param("username") String username);
 
 
 }
