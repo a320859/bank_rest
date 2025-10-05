@@ -6,6 +6,7 @@ import com.example.bankcards.dto.ChangeStatusDTO;
 import com.example.bankcards.dto.TransferDTO;
 
 import com.example.bankcards.entity.Card;
+import com.example.bankcards.exception.*;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.UserRepository;
 import com.example.bankcards.util.CardEncryptor;
@@ -38,7 +39,8 @@ public class CardsService {
         if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority(String.valueOf(RoleUser.ADMIN)))) {
             return cardRepository.findAll(PageRequest.of(page, size));
         }
-        int userId = userRepository.findIdByUsername(userDetails.getUsername());
+        int userId = userRepository.findIdByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         return cardRepository.getCards(userId, PageRequest.of(page, size));
     }
 
@@ -49,20 +51,24 @@ public class CardsService {
         }
         String number = cardDTO.getNumber();
         if (!number.matches("\\d{16}")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The card number must contain 16 digits");
+            throw new InvalidCardNumberException("The card number must contain 16 digits");
         }
 
         try{
             number = CardEncryptor.encrypt(number);
-            if (cardRepository.countOfCardsWithNumber(number) != 0) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("Card with this number already exists");
-            }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to encrypt card number");
+            throw new CardEncryptionException("Failed to encrypt card number");
         }
-        int ownerId = userRepository.findIdByUsername(cardDTO.getOwnerUsername());
+
+        if (cardRepository.countOfCardsWithNumber(number) != 0) {
+            throw new CardNumberAlreadyExistsException("Card with this number already exists");
+        }
+
+        int ownerId = userRepository.findIdByUsername(cardDTO.getOwnerUsername())
+                    .orElseThrow(() -> new UserNotFoundException("User not found"));
+
         int balance = cardDTO.getBalance();
-        LocalDate validityPeriod = LocalDate.now().plusDays(1);
+        LocalDate validityPeriod = LocalDate.now().plusDays(10);
         String status = String.valueOf(CardStatus.ACTIVE);
         cardRepository.saveCard(number, ownerId, balance, validityPeriod, status);
         return ResponseEntity.ok().body("The card was successfully created");
@@ -79,17 +85,22 @@ public class CardsService {
             fromCard = CardEncryptor.encrypt(fromCard);
             toCard = CardEncryptor.encrypt(toCard);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to encrypt card number");
+            throw new CardEncryptionException("Failed to encrypt card number");
         }
 
-        if (!cardRepository.findStatusByNumber(fromCard).equals("ACTIVE") ||
-                !cardRepository.findStatusByNumber(toCard).equals("ACTIVE")){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Card is inactive");
+        if (!cardRepository.findStatusByNumber(fromCard)
+                .orElseThrow(() -> new CardNotFoundException("Card not found")).equals("ACTIVE") ||
+                !cardRepository.findStatusByNumber(toCard)
+                        .orElseThrow(() -> new CardNotFoundException("Card not found")).equals("ACTIVE")) {
+            throw new CardInactiveException("Card is inactive");
         }
 
-        int userIdFromCard = cardRepository.getUserIdByCardNumber(fromCard);
-        int userIdToCard = cardRepository.getUserIdByCardNumber(toCard);
-        int userId =  userRepository.findIdByUsername(userDetails.getUsername());
+        int userIdFromCard = cardRepository.getUserIdByCardNumber(fromCard)
+                .orElseThrow(() -> new CardNotFoundException("Card not found"));
+        int userIdToCard = cardRepository.getUserIdByCardNumber(toCard)
+                .orElseThrow(() -> new CardNotFoundException("Card not found"));
+        int userId = userRepository.findIdByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         if (userId == userIdFromCard && userId == userIdToCard) {
             int fromCardBalance = cardRepository.getBalance(fromCard);
@@ -99,7 +110,7 @@ public class CardsService {
             cardRepository.editBalance(toCardBalance + amount, toCard);
             return ResponseEntity.ok().body("Transaction successful");
         } else {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Cards not found");
+            throw new CardNotFoundException("Cards not found");
         }
     }
 
@@ -107,6 +118,7 @@ public class CardsService {
         if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority(String.valueOf(RoleUser.USER)))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only an admin can change status");
         }
+        cardRepository.findById(id).orElseThrow(() -> new CardNotFoundException("Card not found"));
         cardRepository.changeStatus(changeStatusDTO.getNewStatus(), id);
         return ResponseEntity.ok("Status changed");
     }
@@ -116,12 +128,13 @@ public class CardsService {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only an user can request a card block");
         }
 
-        int userId = userRepository.findIdByUsername(userDetails.getUsername());
+        int userId = userRepository.findIdByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         Card card = cardRepository.findById(dto.getCardId())
-                .orElseThrow(() -> new RuntimeException("Card not found"));
+                .orElseThrow(() -> new CardNotFoundException("Card not found"));
 
         if (card.getOwner().getId() != userId) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You cannot block someone else's card");
+            throw new CardNotFoundException("Card not found");
         }
 
         card.setBlockRequested(true);
