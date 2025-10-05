@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface CardRepository extends JpaRepository<Card, Integer> {
 
@@ -22,7 +23,7 @@ public interface CardRepository extends JpaRepository<Card, Integer> {
                   @Param("validityPeriod") LocalDate validityPeriod, @Param("status") String status);
 
     @Query(nativeQuery = true, value = "SELECT owner_id FROM cards WHERE number = :number")
-    int getUserIdByCardNumber(@Param("number") String number);
+    Optional<Integer> getUserIdByCardNumber(@Param("number") String number);
 
     @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM cards WHERE number = :number")
     int countOfCardsWithNumber(@Param("number") String number);
@@ -36,7 +37,7 @@ public interface CardRepository extends JpaRepository<Card, Integer> {
 
 
     @Query(nativeQuery = true, value = "SELECT status FROM cards WHERE number = :number")
-    String findStatusByNumber(@Param("number") String number);
+    Optional<String> findStatusByNumber(@Param("number") String number);
 
     @Query(nativeQuery = true, value = "SELECT balance FROM cards WHERE number = :number")
     int getBalance(@Param("number") String number);
