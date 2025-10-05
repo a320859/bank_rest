@@ -35,7 +35,7 @@ public class CardsController {
         return cardsService.transfer(transferDTO, userDetails);
     }
 
-    @PostMapping("/cards/{id}/changeStatus")
+    @PatchMapping("/cards/{id}/changeStatus")
     public ResponseEntity<?> changeStatus(@PathVariable int id, @RequestBody ChangeStatusDTO changeStatusDTO, @AuthenticationPrincipal UserDetails userDetails) {
         return cardsService.changeStatus(id, changeStatusDTO, userDetails);
     }
