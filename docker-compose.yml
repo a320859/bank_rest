@@ -1,9 +1,59 @@
-# 
-# docker-compose.yml — определяет сервисы для разработки и тестирования.
+##
+## docker-compose.yml — определяет сервисы для разработки и тестирования.
+#
+#Что нужно сделать:
+#  - Настроить сервисы для:
+#      - PostgreSQL (или MySQL) с начальной базой.
+#      - Приложения Spring Boot (если нужно).
+#  - Открыть нужные порты (например, 5432, 8080).
+#  - Настроить volume для хранения данных БД.
 
-Что нужно сделать:
-  - Настроить сервисы для:
-      - PostgreSQL (или MySQL) с начальной базой.
-      - Приложения Spring Boot (если нужно).
-  - Открыть нужные порты (например, 5432, 8080).
-  - Настроить volume для хранения данных БД.
+version: '3.8'
+
+services:
+
+  db:
+    image: mysql:8.4.0
+    container_name: bank_mysql_db
+    restart: always
+    environment:
+
+      MYSQL_ROOT_PASSWORD: MyNewPassword123!
+      MYSQL_DATABASE: mydb
+
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: target/demo-0.0.1-SNAPSHOT.jar
+
+    container_name: bank_spring_app
+    ports:
+      - "8080:8080"
+
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/mydb?useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: MyNewPassword123!
+
+volumes:
+  db_data:

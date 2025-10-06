@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-admin-user
+      author: nikita
+      preConditions:
+        - sqlCheck:
+            expectedResult: "0"
+            sql: "SELECT COUNT(*) FROM users WHERE username='admin';"
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: username
+                  value: admin
+              - column:
+                  name: password
+                  value: "$2a$10$qDXdvZEnnfE9ueIHXREss.FZDAE4xg3hs9esT5vryMJE2/yqHMOP6"
+              - column:
+                  name: enabled
+                  valueNumeric: 1
+              - column:
+                  name: role
+                  value: ADMIN

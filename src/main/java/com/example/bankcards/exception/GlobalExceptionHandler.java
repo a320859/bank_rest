@@ -14,11 +14,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleOtherExceptions(Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("An unexpected error occurred");
-    }
 
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<?> handleCredentialsLogin(InvalidCredentialsException cred) {

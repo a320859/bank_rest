@@ -5,3 +5,5 @@ databaseChangeLog:
       file: db/migration/changelog-card.yaml
   - include:
       file: db/migration/changelog-authorities.yaml
+  - include:
+      file: db/migration/changelog-admin-user.yaml

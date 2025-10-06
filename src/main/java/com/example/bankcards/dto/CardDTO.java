@@ -5,6 +5,13 @@ public class CardDTO {
     private int balance;
     private String ownerUsername;
 
+    public CardDTO(String savings, double v) {
+    }
+
+    public CardDTO() {
+
+    }
+
     public String getNumber() {
         return number;
     }
