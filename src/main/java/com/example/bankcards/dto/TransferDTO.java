@@ -5,6 +5,14 @@ public class TransferDTO {
     private String toCard;
     private int amount;
 
+    public TransferDTO(long l, long l1, double v) {
+    }
+
+    public TransferDTO(String plainCardNumber, String otherCard, int v) {
+    }
+
+    public TransferDTO() {
+    }
     public String getFromCard() {
         return fromCard;
     }

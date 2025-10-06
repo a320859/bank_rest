@@ -4,6 +4,11 @@ public class BlockCardRequestDTO {
     private int cardId;
     private String reason;
 
+    public BlockCardRequestDTO(long l, String string) {
+    }
+
+    public BlockCardRequestDTO(long l) {
+    }
     public int getCardId() {
         return cardId;
     }
