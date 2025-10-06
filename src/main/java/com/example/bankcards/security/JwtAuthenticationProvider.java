@@ -1,5 +1,6 @@
 package com.example.bankcards.security;
 
+import com.example.bankcards.exception.InvalidCredentialsException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -30,12 +31,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         if (passwordEncoder.matches(password, user.getPassword())) {
             return new UsernamePasswordAuthenticationToken(username, null, Collections.emptyList());
         } else {
-            throw new AuthenticationException("invalid credentials") {
-                @Override
-                public Authentication getAuthenticationRequest() {
-                    return super.getAuthenticationRequest();
-                }
-            };
+            throw new InvalidCredentialsException("Invalid password");
         }
     }
 
