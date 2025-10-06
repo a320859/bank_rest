@@ -17,7 +17,7 @@ import java.time.LocalDate;
 public class Card {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     private String number;
 
     @ManyToOne
@@ -41,11 +41,14 @@ public class Card {
         return "**** **** **** " + decrypted.substring(decrypted.length() - 4);
     }
 
-    public void setId(int id) {
+    public Card() {
+    }
+
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
